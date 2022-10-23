@@ -13,13 +13,30 @@ struct ContentView: View {
             .padding()
     }
     
-    func loadFile() {
-        if let fileURL = Bundle.main.url(forResource: "some-file", withExtension: "txt") {
-            if let fileContents = try? String(contentsOf: fileURL) {
-                // fileContent - we loaded the file into the string
-            }
-            
-        }
+    func test() {
+        // 1.
+//        let input = "a b c"
+//        let letters = input.components(separatedBy: " ")
+        
+        // 2.
+//        let input = """
+//a
+//b
+//c
+//"""
+//        let letters = input.components(separatedBy: "\n")
+//        let letter = letters.randomElement()
+//
+//        let trimmed = letter?.trimmingCharacters(in: .whitespaces)
+        
+        // 3.
+        let word = "swift"
+        let checker = UITextChecker()
+        
+        let range = NSRange(location: 0, length: word.utf16.count)
+        let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: " en")
+        
+        let allGood = misspelledRange.location == NSNotFound
     }
 }
 
