@@ -8,47 +8,18 @@
 import SwiftUI
 
 struct ContentView: View {
-    let people = ["Finn", "Leia", "Luke", "Rey"]
-    
     var body: some View {
-        
-        // 4.
-        List {
-            Text("Static row")
-            
-            ForEach(people, id: \.self) {
-                Text($0)
+        Text("Hello, world!")
+            .padding()
+    }
+    
+    func loadFile() {
+        if let fileURL = Bundle.main.url(forResource: "some-file", withExtension: "txt") {
+            if let fileContents = try? String(contentsOf: fileURL) {
+                // fileContent - we loaded the file into the string
             }
             
-            Text("Static row")
-
-        // 3.
-//        List(people, id: \.self) {
-//            Text($0)
-        
-        // 2.
-//        List(0..<5) {
-//            Text("Dynamic row \($0)")
-
-        // 1.
-//            List {
-    //            Section("Section 1") {
-    //                Text("Staic row 1")
-    //                Text("Staic row 2")
-    //            }
-    //
-    //            Section("Section 2") {
-    //                ForEach(0..<5) {
-    //                    Text("Dynamic row \($0)")
-    //                }
-    //            }
-    //
-    //            Section("Section 3") {
-    //                Text("Staic row 3")
-    //                Text("Staic row 4")
-    //            }
         }
-        .listStyle(.grouped)
     }
 }
 
