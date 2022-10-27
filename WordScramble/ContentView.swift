@@ -16,12 +16,15 @@ struct ContentView: View {
     @State private var errorMessage = ""
     @State private var showingError = false
     
+    @State private var score = 0
+
     var body: some View {
         NavigationView {
             List {
                 Section {
                     TextField("Enter your word", text: $newWord)
                         .autocapitalization(.none)
+                        .autocorrectionDisabled()
                 }
                 
                 Section {
@@ -32,8 +35,18 @@ struct ContentView: View {
                         }
                     }
                 }
+                
+                Section {
+                    Text("Score: \(score)")
+                        .font(.title2)
+                }
             }
             .navigationTitle(rootWord)
+            .toolbar {
+                Button("Restart") {
+                    startGame()
+                }
+            }
             .onSubmit(addNewWord)
             .onAppear(perform: startGame)
             .alert(errorTitle, isPresented: $showingError) {
@@ -63,9 +76,21 @@ struct ContentView: View {
             return
         }
         
+        guard isAllowed(word: answer) else {
+            wordError(title: "Word is not allowed", message: "Word has less than 3 letters and/or is the start word!")
+            return
+        }
+        
+        if answer.count > 5 {
+            score += 5
+        } else {
+            score += 1
+        }
+        
         withAnimation {
             usedWords.insert(answer, at: 0)
         }
+        
         newWord = ""
     }
     
@@ -105,6 +130,14 @@ struct ContentView: View {
         let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
         
         return misspelledRange.location == NSNotFound
+    }
+    
+    func isAllowed(word: String) -> Bool {
+        if word.count > 2 && word != rootWord {
+            return true
+        } else {
+            return false
+        }
     }
     
     func wordError(title: String, message: String) {
