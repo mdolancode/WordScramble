@@ -35,18 +35,8 @@ struct ContentView: View {
                         }
                     }
                 }
-                
-                Section {
-                    Text("Score: \(score)")
-                        .font(.title2)
-                }
             }
             .navigationTitle(rootWord)
-            .toolbar {
-                Button("Restart") {
-                    startGame()
-                }
-            }
             .onSubmit(addNewWord)
             .onAppear(perform: startGame)
             .alert(errorTitle, isPresented: $showingError) {
@@ -54,12 +44,32 @@ struct ContentView: View {
             } message: {
                 Text(errorMessage)
             }
+            .toolbar {
+                Button("New Game", action: startGame)
+            }
+            // ONLY works with iOS 15.2 or newer because previously this would cover up the bottom og=f the List.
+            .safeAreaInset(edge: .bottom) {
+                Text("Score: \(score)")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(.blue)
+                    .foregroundColor(.white)
+                    .font(.title)
+            }
         }
     }
     
     func addNewWord() {
         let answer = newWord.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-        guard answer.count > 0 else { return }
+        guard answer.count > 3 else {
+            wordError(title: "Word too short", message: "Words must be at least four letters long.")
+            return
+        }
+        
+        guard answer != rootWord else {
+            wordError(title: "Nice try...", message: "You can't use your starting word!")
+            return
+        }
         
         guard isOriginal(word: answer) else {
             wordError(title: "Word used already", message: "Be more original!")
@@ -76,25 +86,19 @@ struct ContentView: View {
             return
         }
         
-        guard isAllowed(word: answer) else {
-            wordError(title: "Word is not allowed", message: "Word has less than 3 letters and/or is the start word!")
-            return
-        }
-        
-        if answer.count > 5 {
-            score += 5
-        } else {
-            score += 1
-        }
-        
         withAnimation {
             usedWords.insert(answer, at: 0)
         }
         
         newWord = ""
+        score += answer.count
     }
     
     func startGame() {
+        newWord = ""
+        score = 0
+        usedWords.removeAll()
+        
         if let startWordsURL = Bundle.main.url(forResource: "start", withExtension: "txt") {
             if let startWords = try? String(contentsOf: startWordsURL) {
                 let allWords = startWords.components(separatedBy: "\n")
@@ -130,14 +134,6 @@ struct ContentView: View {
         let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
         
         return misspelledRange.location == NSNotFound
-    }
-    
-    func isAllowed(word: String) -> Bool {
-        if word.count > 2 && word != rootWord {
-            return true
-        } else {
-            return false
-        }
     }
     
     func wordError(title: String, message: String) {
